@@ -1,13 +1,12 @@
-
 env:
    global:
-     - CONAN_REFERENCE: "vtk/8.2.0"
-     - CONAN_USERNAME: "CHM"
-     - CONAN_LOGIN_USERNAME: "chrismarsh"
-     - CONAN_CHANNEL: "dev"
-     - CONAN_UPLOAD: "https://api.bintray.com/conan/chrismarsh/CHM"
-     - MAKEFLAGS: "-j 2"
-     - CONAN_UPLOAD_DEPENDENCIES: "all"
+      - CONAN_REFERENCE: "vtk/8.2.0"
+      - CONAN_USERNAME: "CHM"
+      - CONAN_LOGIN_USERNAME: "chrismarsh"
+      - CONAN_CHANNEL: "dev"
+      - CONAN_UPLOAD: "https://api.bintray.com/conan/chrismarsh/CHM"
+      - MAKEFLAGS: "-j 2"
+      - CONAN_UPLOAD_DEPENDENCIES: "all"
 
 
 linux: &linux
@@ -16,19 +15,19 @@ linux: &linux
    language: python
    python: "3.7"
    services:
-     - docker
+      - docker
 osx: &osx
    os: osx
    language: generic
 matrix:
    include:
       - <<: *linux
-        env: CONAN_GCC_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/gcc8 
+        env: CONAN_GCC_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/gcc8
 
 install:
-  - chmod +x .travis/install.sh
-  - ./.travis/install.sh
+   - chmod +x .travis/install.sh
+   - ./.travis/install.sh
 
 script:
-  - chmod +x .travis/run.sh
-  - ./.travis/run.sh
+   - chmod +x .travis/run.sh
+   - ./.travis/run.sh
