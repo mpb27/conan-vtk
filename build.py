@@ -1,5 +1,5 @@
 from cpt.packager import ConanMultiPackager
-
+from collections import defaultdict
 
 if __name__ == "__main__":
     builder = ConanMultiPackager(gcc_versions=["8"],
