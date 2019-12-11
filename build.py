@@ -11,10 +11,10 @@ if __name__ == "__main__":
 
 
     i=0
-    for settings, options, env_vars, build_requires in builder.builds:
+    for settings, options, env_vars, build_requires in builder.items:
         i += 1 
         named_builds["p%s" % i].append([settings, options, env_vars, build_requires])
-        
+
     builder.named_builds = named_builds
 
     builder.run()
