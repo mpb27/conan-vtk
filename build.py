@@ -10,5 +10,12 @@ if __name__ == "__main__":
     builder.remove_build_if(lambda build: build.settings["compiler.libcxx"] == "libstdc++")
 
 
+    i=0
+    for settings, options, env_vars, build_requires in builder.builds:
+        i += 1 
+        named_builds["p%s" % i].append([settings, options, env_vars, build_requires])
+        
+    builder.named_builds = named_builds
+
     builder.run()
 
