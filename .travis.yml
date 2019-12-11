@@ -2,11 +2,14 @@
 env:
    global:
      - CONAN_REFERENCE: "vtk/8.2.0"
-     - CONAN_USERNAME: "chrismarsh"
+     - CONAN_USERNAME: "CHM"
      - CONAN_LOGIN_USERNAME: "chrismarsh"
-     - CONAN_CHANNEL: "CHM"
+     - CONAN_CHANNEL: "dev"
      - CONAN_UPLOAD: "https://api.bintray.com/conan/chrismarsh/CHM"
-     - MAKEFLAGS="-j 2"
+     - MAKEFLAGS: "-j 2"
+     - CONAN_UPLOAD_DEPENDENCIES: "all"
+     - CONAN_TOTAL_PAGES: 2
+     - CONAN_CURRENT_PAGE: 1
 
 linux: &linux
    os: linux
@@ -21,7 +24,7 @@ osx: &osx
 matrix:
    include:
       - <<: *linux
-        env: CONAN_GCC_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/gcc8
+        env: CONAN_GCC_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/gcc8 CONAN_CURRENT_PAGE=$CONAN_CURRENT_PAGE
 
 install:
   - chmod +x .travis/install.sh
