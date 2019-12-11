@@ -12,6 +12,7 @@ if __name__ == "__main__":
 
 
     i=0
+    named_builds = defaultdict(list)
     for settings, options, env_vars, build_requires, reference in builder.items:
         i += 1 
         named_builds["p%s" % i].append([settings, options, env_vars, build_requires, reference])
