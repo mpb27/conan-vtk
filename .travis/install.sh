@@ -5,6 +5,7 @@ set -x
 
 if [[ "$(uname -s)" == 'Darwin' ]]; then
     brew update || brew update
+    brew link openssl --force
     brew outdated pyenv || brew upgrade pyenv
     brew install pyenv-virtualenv
     brew install cmake || true
