@@ -27,10 +27,10 @@ matrix:
         env: CONAN_GCC_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/gcc8 CONAN_CURRENT_PAGE="gcc_static"
       - <<: *osx
         osx_image: xcode11.2
-        env: CONAN_APPLE_CLANG_VERSIONS=11.0.0 CONAN_CURRENT_PAGE="apple-clang_static"
+        env: CONAN_APPLE_CLANG_VERSIONS=11.0 CONAN_CURRENT_PAGE="apple-clang_static"
       - <<: *osx
         osx_image: xcode11.2
-        env: CONAN_APPLE_CLANG_VERSIONS=11.0.0 CONAN_CURRENT_PAGE="apple-clang_shared"
+        env: CONAN_APPLE_CLANG_VERSIONS=11.0 CONAN_CURRENT_PAGE="apple-clang_shared"
 
 install:
    - chmod +x .travis/install.sh
