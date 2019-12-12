@@ -13,9 +13,9 @@ if __name__ == "__main__":
 
     named_builds = defaultdict(list)
     for settings, options, env_vars, build_requires, reference in builder.items:
-        print(settings)
-        
+
         shared="shared"
+
         if not options['vtk:shared']:
             shared = "static" 
 
@@ -23,7 +23,11 @@ if __name__ == "__main__":
 
     builder.named_builds = named_builds
 
-    builder.curpage = list(named_builds.keys())[0] #start at first key
+    for itr in named_builds.items():
+        print(itr)
+        print("\n")
 
+    builder.curpage = list(named_builds.keys())[0] #start at first key
+    print("curpage="+builder.curpage)
     builder.run()
 
