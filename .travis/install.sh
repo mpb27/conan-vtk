@@ -5,7 +5,6 @@ set -x
 
 if [[ "$(uname -s)" == 'Darwin' ]]; then
     brew update || brew update
-    brew link openssl --force
     brew outdated pyenv || brew upgrade pyenv
     brew install pyenv-virtualenv
     brew install cmake || true
@@ -14,8 +13,8 @@ if [[ "$(uname -s)" == 'Darwin' ]]; then
         eval "$(pyenv init -)"
     fi
 
-    pyenv install 2.7.10
-    pyenv virtualenv 2.7.10 conan
+    pyenv install 2.7.16
+    pyenv virtualenv 2.7.16 conan
     pyenv rehash
     pyenv activate conan
 fi

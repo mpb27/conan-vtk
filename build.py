@@ -2,11 +2,10 @@ from cpt.packager import ConanMultiPackager
 from collections import defaultdict
 
 if __name__ == "__main__":
-    builder = ConanMultiPackager(gcc_versions=["8"],
-                                apple_clang_versions=["11.0.0"],
+    builder = ConanMultiPackager(
                                 archs=["x86_64"],
                                 build_types=["Release"],
-                                curpage="gcc", total_pages=2)
+                                curpage="gcc_shared", total_pages=2)
     builder.add_common_builds(pure_c=False,shared_option_name="vtk:shared")
 
     builder.remove_build_if(lambda build: build.settings["compiler.libcxx"] == "libstdc++")
@@ -14,9 +13,15 @@ if __name__ == "__main__":
 
     named_builds = defaultdict(list)
     for settings, options, env_vars, build_requires, reference in builder.items:
-        named_builds[settings['compiler']].append([settings, options, env_vars, build_requires, reference])
+        print(settings)
+        
+        shared="shared"
+        if not options['vtk:shared']:
+            shared = "static" 
+
+        named_builds[settings['compiler'] +"_"+shared].append([settings, options, env_vars, build_requires, reference])
 
     builder.named_builds = named_builds
-
+    print(named_builds)
     builder.run()
 
