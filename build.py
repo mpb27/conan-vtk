@@ -4,8 +4,8 @@ from collections import defaultdict
 if __name__ == "__main__":
     builder = ConanMultiPackager(
                                 archs=["x86_64"],
-                                build_types=["Release"],
-                                curpage="gcc_shared")
+                                build_types=["Release"])
+                              
     builder.add_common_builds(pure_c=False,shared_option_name="vtk:shared")
 
     builder.remove_build_if(lambda build: build.settings["compiler.libcxx"] == "libstdc++")
@@ -23,11 +23,5 @@ if __name__ == "__main__":
 
     builder.named_builds = named_builds
 
-    for itr in named_builds.items():
-        print(itr)
-        print("\n")
-
-    builder.curpage = list(named_builds.keys())[0] #start at first key
-    print("curpage="+builder.curpage)
     builder.run()
 
