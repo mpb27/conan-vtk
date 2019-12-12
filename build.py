@@ -5,7 +5,7 @@ if __name__ == "__main__":
     builder = ConanMultiPackager(
                                 archs=["x86_64"],
                                 build_types=["Release"],
-                                curpage="gcc_shared", total_pages=2)
+                                curpage="gcc_shared")
     builder.add_common_builds(pure_c=False,shared_option_name="vtk:shared")
 
     builder.remove_build_if(lambda build: build.settings["compiler.libcxx"] == "libstdc++")
@@ -22,6 +22,8 @@ if __name__ == "__main__":
         named_builds[settings['compiler'] +"_"+shared].append([settings, options, env_vars, build_requires, reference])
 
     builder.named_builds = named_builds
-    print(named_builds)
+
+    builder.curpage = list(named_builds.keys())[0] #start at first key
+
     builder.run()
 
