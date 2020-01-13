@@ -10,4 +10,10 @@ if [[ "$(uname -s)" == 'Darwin' ]]; then
     pyenv activate conan
 fi
 
-python build.py
+python build.py &
+PID=$!
+while [ -d /proc/$PID ]
+do
+    echo "Building..."
+    sleep 540s # 9 minutes
+done
