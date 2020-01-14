@@ -86,6 +86,9 @@ class VTKConan(ConanFile):
         cmake.definitions["BUILD_EXAMPLES"] = "OFF"
         cmake.definitions["BUILD_SHARED_LIBS"] = self.options.shared
 
+        if self.settings.os == 'Macos':
+            cmake.definitions["CMAKE_INSTALL_NAME_DIR"] = "@rpath"
+
         if self.options.minimal:
             cmake.definitions["VTK_Group_StandAlone"] = "OFF"
             cmake.definitions["VTK_Group_Rendering"] = "OFF"
