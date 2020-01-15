@@ -12,8 +12,8 @@ fi
 
 python build.py &
 PID=$!
-while [ -d /proc/$PID ]
+while kill -0 "$PID"
 do
     echo "Building..."
-    sleep 540s # 9 minutes
+    sleep 60s
 done
