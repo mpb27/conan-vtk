@@ -170,19 +170,6 @@ class VTKConan(ConanFile):
                     if tools.os_info.is_macos:
                         self.cmake_fix_macos_sdk_path(cmake_file)
 
-        if tools.os_info.is_linux:
-            for path, subdirs, names in os.walk(os.path.join(self.package_folder, 'lib')):
-                for name in names:
-                    if fnmatch(name, '*.so*'):
-                        so_file = os.path.join(path, name)
-
-                        cmd = "patchelf --set-rpath {0} {1}".format("\$ORIGIN", so_file)
-                        os.system(cmd)
-
-
-
-
-
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
