@@ -86,6 +86,9 @@ class VTKConan(ConanFile):
         cmake.definitions["BUILD_EXAMPLES"] = "OFF"
         cmake.definitions["BUILD_SHARED_LIBS"] = self.options.shared
 
+        if tools.os_info.is_macos:
+            cmake.definitions["CMAKE_GENERATOR_PLATFORM"] = "Ninja"
+
         if self.settings.os == 'Macos':
             cmake.definitions["CMAKE_INSTALL_NAME_DIR"] = "@rpath"
 
