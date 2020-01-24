@@ -5,7 +5,7 @@ env:
       - CONAN_LOGIN_USERNAME: "chrismarsh"
       - CONAN_CHANNEL: "stable"
       - CONAN_UPLOAD: "https://api.bintray.com/conan/chrismarsh/CHM"
-      - CONAN_CPU_COUNT=4
+      - CONAN_CPU_COUNT=8
 linux: &linux
    os: linux
    dist: xenial
