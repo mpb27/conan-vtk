@@ -15,11 +15,27 @@ class VTKConan(ConanFile):
     exports = ["LICENSE.md", "CMakeLists.txt", "FindVTK.cmake",
         "vtknetcdf_snprintf.diff", "vtktiff_mangle.diff"]
     source_subfolder = "source_subfolder"
-    options = {"shared": [True, False], "qt": [True, False], "mpi": [True, False],
-               "fPIC": [True, False], "minimal": [True, False], "ioxml": [True, False],
-               "ioexport": [True, False], "mpi_minimal": [True, False]}
-    default_options = ("shared=True", "qt=False", "mpi=False", "fPIC=True",
-        "minimal=False", "ioxml=False", "ioexport=False", "mpi_minimal=False")
+    options = {"shared": [True, False],
+               "VTK_Group_Imaging": [True, False], #Request building Imaging modules
+               "VTK_Group_MPI": [True, False], #Request building MPI modules
+               "VTK_Group_Qt": [True, False],#Request building Qt modules
+               "VTK_Group_Rendering": [True, False], #Request building Rendering modules
+               "VTK_Group_StandAlone": [True, False], #Request building of all stand alone modules (no external dependencies required)
+               "VTK_Group_Tk": [True, False], #Request building Tk modules
+               "VTK_Group_Views": [True, False], #Request building Views modules
+               "VTK_Group_Web": [True, False], #Request building Web modules
+               "fPIC": [True, False]
+               }
+    default_options = ("shared=True", "fPIC=True",
+                       "VTK_Group_Imaging=False",
+                       "VTK_Group_MPI=False",
+                       "VTK_Group_Qt=False",
+                       "VTK_Group_Rendering=False",
+                       "VTK_Group_StandAlone=True",
+                       "VTK_Group_Tk=False",
+                       "VTK_Group_Views=False",
+                       "VTK_Group_Web=False"
+       )
 
     short_paths = True
 
@@ -35,8 +51,9 @@ class VTKConan(ConanFile):
         tools.patch(base_path=self.source_subfolder, patch_file="vtktiff_mangle.diff") # Bump 1
 
     def requirements(self):
-        if self.options.qt:
+        if self.options.VTK_Group_Qt:
             self.requires("qt/5.12.4@bincrafters/stable")
+            self.options["qt"]=True
             self.options["qt"].shared = True
             if tools.os_info.is_linux:
                 self.options["qt"].qtx11extras = True
@@ -57,7 +74,7 @@ class VTKConan(ConanFile):
 
     def build_requirements(self):
         pack_names = None
-        if not self.options.minimal and tools.os_info.is_linux:
+        if not self.options.VTK_Group_Rendering and tools.os_info.is_linux:
             if tools.os_info.with_apt:
                 pack_names = [
                     "freeglut3-dev",
@@ -89,23 +106,16 @@ class VTKConan(ConanFile):
         if self.settings.os == 'Macos':
             cmake.definitions["CMAKE_INSTALL_NAME_DIR"] = "@rpath"
 
-        if self.options.minimal:
-            cmake.definitions["VTK_Group_StandAlone"] = "OFF"
-            cmake.definitions["VTK_Group_Rendering"] = "OFF"
-        if self.options.ioxml:
-            cmake.definitions["Module_vtkIOXML"] = "ON"
-        if self.options.ioexport:
-            cmake.definitions["Module_vtkIOExport"] = "ON"
-        if self.options.qt:
-            cmake.definitions["VTK_Group_Qt"] = "ON"
-            cmake.definitions["VTK_QT_VERSION"] = "5"
-            cmake.definitions["VTK_BUILD_QT_DESIGNER_PLUGIN"] = "OFF"
-        if self.options.mpi:
-            cmake.definitions["VTK_Group_MPI"] = "ON"
-            cmake.definitions["Module_vtkIOParallelXML"] = "ON"
-        if self.options.mpi_minimal:
-            cmake.definitions["Module_vtkIOParallelXML"] = "ON"
-            cmake.definitions["Module_vtkParallelMPI"] = "ON"
+
+        cmake.definitions["VTK_Group_Imaging"]=self.options.VTK_Group_Imaging
+        cmake.definitions["VTK_Group_MPI"]=self.options.VTK_Group_MPI
+        cmake.definitions["VTK_Group_Qt"]=self.options.VTK_Group_Qt
+        cmake.definitions["VTK_Group_Rendering"]=self.options.VTK_Group_Rendering
+        cmake.definitions["VTK_Group_StandAlone"]=self.options.VTK_Group_StandAlone  # This is required
+        cmake.definitions["VTK_Group_Tk"]=self.options.VTK_Group_Tk
+        cmake.definitions["VTK_Group_Views"]=self.options.VTK_Group_Views
+        cmake.definitions["VTK_Group_Web"]=self.options.VTK_Group_Web
+
 
         if self.settings.build_type == "Debug" and self.settings.compiler == "Visual Studio":
             cmake.definitions["CMAKE_DEBUG_POSTFIX"] = "_d"
