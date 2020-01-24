@@ -86,9 +86,6 @@ class VTKConan(ConanFile):
         cmake.definitions["BUILD_EXAMPLES"] = "OFF"
         cmake.definitions["BUILD_SHARED_LIBS"] = self.options.shared
 
-        cmake.definitions["CMAKE_UNITY_BUILD"] = "ON"
-        cmake.definitions["UNITY_BUILD_BATCH_SIZE"]=2
-
         if self.settings.os == 'Macos':
             cmake.definitions["CMAKE_INSTALL_NAME_DIR"] = "@rpath"
 
