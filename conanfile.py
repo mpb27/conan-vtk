@@ -12,7 +12,7 @@ class VTKConan(ConanFile):
     license = "MIT"
     generators = "cmake"
     settings = "os", "compiler", "build_type", "arch"
-    exports = ["LICENSE.md", "CMakeLists.txt"]
+    exports = ["LICENSE.md"]
     source_subfolder = "source_subfolder"
     options = {"shared": [True, False],
                "VTK_Group_Imaging": [True, False], #Request building Imaging modules
