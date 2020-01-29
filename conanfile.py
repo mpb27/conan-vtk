@@ -121,7 +121,8 @@ class VTKConan(ConanFile):
             self.env['DYLD_LIBRARY_PATH'] = os.path.join(self.build_folder, 'lib')
             self.output.info("cmake build: %s" % self.build_folder)
 
-        cmake.configure(build_folder=self.source_folder)
+        cmake.configure(source_folder=self.source_folder+'/'+self.source_subfolder,build_folder='build')
+
         if self.settings.os == 'Macos':
             # run_environment does not work here because it appends path just from
             # requirements, not from this package itself
