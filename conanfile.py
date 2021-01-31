@@ -182,9 +182,9 @@ class VTKConan(ConanFile):
         short_version = "%s.%s" % (version_split[0], version_split[1])
 
         self.cpp_info.includedirs = [
-            "include/vtk-%s" % self.short_version,
-            "include/vtk-%s/vtknetcdf/include" % self.short_version,
-            "include/vtk-%s/vtknetcdfcpp" % self.short_version
+            "include/vtk-%s" % short_version,
+            "include/vtk-%s/vtknetcdf/include" % short_version,
+            "include/vtk-%s/vtknetcdfcpp" % short_version
         ]
 
         if self.settings.os == 'Linux':
