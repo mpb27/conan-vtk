@@ -6,7 +6,6 @@ from conans import ConanFile, CMake, tools
 
 class VTKConan(ConanFile):
     name = "vtk"
-    version = "8.2.0"
     description = "Visualization Toolkit by Kitware"
     url = "http://github.com/bilke/conan-vtk"
     license = "MIT"
@@ -42,10 +41,8 @@ class VTKConan(ConanFile):
     short_version = "%s.%s" % (version_split[0], version_split[1])
 
     def source(self):
-        tools.get("https://ogsstorage.blob.core.windows.net/tmp/{0}-{1}.tar.gz"
-                  .format(self.name.upper(), self.version))
-        extracted_dir = self.name.upper() + "-" + self.version
-        os.rename(extracted_dir, self.source_subfolder)
+       tools.get(**self.conan_data["sources"][self.version])
+       os.rename("VTK-{}".format(self.version), self.source_subfolder)
 
     def requirements(self):
         if self.options.VTK_Group_Qt:
