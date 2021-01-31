@@ -37,8 +37,7 @@ class VTKConan(ConanFile):
 
     short_paths = True
 
-    version_split = version.split('.')
-    short_version = "%s.%s" % (version_split[0], version_split[1])
+
 
     def source(self):
        tools.get(**self.conan_data["sources"][self.version])
@@ -178,6 +177,9 @@ class VTKConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
+
+        version_split = self.version.split('.')
+        short_version = "%s.%s" % (version_split[0], version_split[1])
 
         self.cpp_info.includedirs = [
             "include/vtk-%s" % self.short_version,
