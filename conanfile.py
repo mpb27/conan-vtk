@@ -117,6 +117,10 @@ class VTKConan(ConanFile):
             self.env['DYLD_LIBRARY_PATH'] = os.path.join(self.build_folder, 'lib')
             self.output.info("cmake build: %s" % self.build_folder)
 
+            if self.settings.compiler.version == 12:
+                self.output.info("apple-clang v12 detected")
+                cmake.definitions["CMAKE_CXX_FLAGS"] = "-Wno-implicit-function-declaration"
+
         cmake.configure(source_folder=self.source_folder+'/'+self.source_subfolder,build_folder='build')
 
         if self.settings.os == 'Macos':
