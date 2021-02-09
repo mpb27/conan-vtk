@@ -120,6 +120,7 @@ class VTKConan(ConanFile):
             if self.settings.compiler == 'apple-clang' and tools.Version(self.settings.compiler.version).major >= '12':
                 self.output.info("apple-clang v12 detected")
                 cmake.definitions["CMAKE_CXX_FLAGS"] = "-Wno-implicit-function-declaration"
+                cmake.definitions["CMAKE_C_FLAGS"] = "-Wno-implicit-function-declaration"
 
         cmake.configure(source_folder=self.source_folder+'/'+self.source_subfolder,build_folder='build')
 
