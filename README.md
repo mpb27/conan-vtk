@@ -9,3 +9,11 @@ Build artifacts are uploaded to [Bintray](https://bintray.com/chrismarsh/CHM)
 conan install vtk/8.2.0@CHM/stable
 ```
 
+To create the VTK build:
+
+```
+conan create . vtk/9.0.1@mpb27/stable
+conan create . vtk/9.0.1@mpb27/stable -o vtk:VTK_Group_Qt=True -pr vs2019
+conan install vtk/9.0.1@mpb27/stable -o vtk:VTK_Group_Qt=True -pr vs2019
+```
+
