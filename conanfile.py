@@ -6,6 +6,8 @@ from conans import ConanFile, CMake, tools
 
 class VTKConan(ConanFile):
     name = "vtk"
+    user = "mpb27"
+    channel = "testing"
     description = "Visualization Toolkit by Kitware"
     url = "http://github.com/bilke/conan-vtk"
     license = "MIT"
@@ -38,10 +40,20 @@ class VTKConan(ConanFile):
     short_paths = True
 
 
+    def set_version(self):
+       tools.download("https://gitlab.kitware.com/vtk/vtk/-/raw/nightly-master/CMake/vtkVersion.cmake", "temp/vtkVersion.cmake")
+       content = tools.load("temp/vtkVersion.cmake")
+       tools.rmdir("temp")
+       vtk_version_major = re.search("set\(VTK_MAJOR_VERSION (.*)\)", content).group(1)
+       vtk_version_minor = re.search("set\(VTK_MINOR_VERSION (.*)\)", content).group(1)
+       vtk_version_build = re.search("set\(VTK_BUILD_VERSION (.*)\)", content).group(1)
+       self.version = "%s.%s.%s" %(vtk_version_major, vtk_version_minor, vtk_version_build)
+       self.output.info("VTK version available from nightly is %s" % self.version)
 
     def source(self):
-       tools.get(**self.conan_data["sources"][self.version])
-       os.rename("VTK-{}".format(self.version), self.source_subfolder)
+       git = tools.Git(folder="VTK")
+       git.clone("https://gitlab.kitware.com/vtk/vtk.git", "nightly-master")
+       os.rename("VTK", self.source_subfolder)
 
     def requirements(self):
         if self.options.VTK_Group_Qt:
