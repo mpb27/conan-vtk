@@ -1,26 +1,18 @@
-# vtk
-
-This is a minimal Conan build of the vtk library for use with [CHM](https://github.com/Chrismarsh/CHM). 
-
-Build artifacts are uploaded to [Bintray](https://bintray.com/chrismarsh/CHM)
-
-
-```
-conan install vtk/8.2.0@CHM/stable
-```
-
-To create the VTK build:
-
-```
-conan create . vtk/9.0.1@mpb27/stable
-conan create . vtk/9.0.1@mpb27/stable -o vtk:VTK_Group_Qt=True -pr vs2019
-conan install vtk/9.0.1@mpb27/stable -o vtk:VTK_Group_Qt=True -pr vs2019
-```
+# Conan-VTK - Nightly Build Recipe
 
 To create the VTK build using the new auto clone from git:
 
 ```
 conan create .
+
+OR
+
+conan create . -pr vs2019 -o vtk:group_qt=True
 ```
 
-_Note_: This will create vtk/9.0.<nightly build number>@mpb27/testing package.
+_Note_: This will create vtk/9.0.[nightly build number]@mpb27/testing package.
+
+This recipe clones the latest nightly from the VTK repository.
+
+This recipe was originally based on https://github.com/Chrismarsh/conan-vtk
+The recipe was heavily modified and is now primarily based on https://github.com/atrelinski/conan-center-index/blob/master/recipes/vtk/all/conanfile.py and the comments in the conan-center-index PR for this recipe (https://github.com/conan-io/conan-center-index/pull/3280).

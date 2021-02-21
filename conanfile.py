@@ -4,39 +4,248 @@ import re
 from fnmatch import fnmatch
 from conans import ConanFile, CMake, tools
 
+# This recipe clones the latest nightly from the VTK repository.
+# This recipe was originally based on https://github.com/Chrismarsh/conan-vtk
+# This recipe was heavily modified and is now primarily based on https://github.com/atrelinski/conan-center-index/blob/master/recipes/vtk/all/conanfile.py
+# and the comments in the conan-center-index PR for this recipe (https://github.com/conan-io/conan-center-index/pull/3280).
+
 class VTKConan(ConanFile):
     name = "vtk"
     user = "mpb27"
     channel = "testing"
     description = "Visualization Toolkit by Kitware"
-    url = "http://github.com/bilke/conan-vtk"
-    license = "MIT"
+    url = "https://github.com/mpb27/conan-vtk"
+    license = "BSD-3-Clause"
     generators = "cmake"
     settings = "os", "compiler", "build_type", "arch"
     exports = ["LICENSE.md"]
+    exports_sources = ["FindVTK.cmake", "CMakeLists.txt", "patches/**"]
     source_subfolder = "source_subfolder"
-    options = {"shared": [True, False],
-               "VTK_Group_Imaging": [True, False], #Request building Imaging modules
-               "VTK_Group_MPI": [True, False], #Request building MPI modules
-               "VTK_Group_Qt": [True, False],#Request building Qt modules
-               "VTK_Group_Rendering": [True, False], #Request building Rendering modules
-               "VTK_Group_StandAlone": [True, False], #Request building of all stand alone modules (no external dependencies required)
-               "VTK_Group_Tk": [True, False], #Request building Tk modules
-               "VTK_Group_Views": [True, False], #Request building Views modules
-               "VTK_Group_Web": [True, False], #Request building Web modules
-               "fPIC": [True, False]
-               }
-    default_options = ("shared=True", "fPIC=True",
-                       "VTK_Group_Imaging=False",
-                       "VTK_Group_MPI=False",
-                       "VTK_Group_Qt=False",
-                       "VTK_Group_Rendering=False",
-                       "VTK_Group_StandAlone=True",
-                       "VTK_Group_Tk=False",
-                       "VTK_Group_Views=False",
-                       "VTK_Group_Web=False"
-       )
+    _groups = ["StandAlone", "Rendering", "MPI", "Qt", "Imaging", "Views", "Web"]
+     # _modules are taken from CMake GUI
+    _modules = [
+        "AcceleratorsVTKm"
+        "ChartsCore",
+        "CommonArchive"
+        "CommonColor"
+        "CommonComputationalGeometry",
+        "CommonCore",
+        "CommonDataModel",
+        "CommonExecutionModel",
+        "CommonMath"
+        "CommonMisc",
+        "CommonSystem",
+        "CommonTransforms",
+        "DICOMParser",
+        "DomainsChemistry",
+        "DomainsChemistryOpenGL2",
+        "DomainsMicroscopy",
+        "DomainsParallelChemistry",
+        "FiltersAMR",
+        "FiltersCore",
+        "FiltersExtraction",
+        "FiltersFlowPaths",
+        "FiltersGeneral",
+        "FiltersGeneric",
+        "FiltersGeometry",
+        "FiltersHybrid",
+        "FiltersHyperTree",
+        "FiltersImaging",
+        "FiltersModeling",
+        "FiltersOpenTURNS",
+        "FiltersParallel",
+        "FiltersParallelDIY2",
+        "FiltersParallelFlowPaths",
+        "FiltersParallelGeometry",
+        "FiltersParallelImaging",
+        "FiltersParallelMPI",
+        "FiltersParallelStatistics",
+        "FiltersParallelVerdict",
+        "FiltersPoints",
+        "FiltersProgrammable",
+        "FiltersReebGraph",
+        "FiltersSMP",
+        "FiltersSelection",
+        "FiltersSources",
+        "FiltersStatistics",
+        "FiltersTexture",
+        "FiltersTopology",
+        "FiltersVerdict",
+        "GeovisCore",
+        "GeovisGDAL",
+        "GUISupportMFC",
+        "GUISupportQt",
+        "GUISupportQtSQL",
+        "ImagingColor",
+        "ImagingCore",
+        "ImagingFourier",
+        "ImagingGeneral",
+        "ImagingHybrid",
+        "ImagingMath",
+        "ImagingMorphological",
+        "ImagingOpenGL2",
+        "ImagingSources",
+        "ImagingStatistics",
+        "ImagingStencil",
+        "InfovisBoost",
+        "InfovisBoostGraphAlgorithms",
+        "InfovisCore",
+        "InfovisLayout",
+        "InteractionImage",
+        "InteractionStyle",
+        "InteractionWidgets",
+        "IOADIOS2",
+        "IOAMR",
+        "IOAsynchronous",
+        "IOCityGML",
+        "IOCore",
+        "IOEnSight",
+        "IOExodus",
+        "IOExport",
+        "IOExportGL2PS",
+        "IOExportPDF",
+        "IOFFMPEG",
+        "IOGDAL",
+        "IOGeoJSON",
+        "IOGeometry",
+        "IOH5part",
+        "IOImage",
+        "IOImport",
+        "IOInfovis",
+        "IOLAS",
+        "IOLSDyna",
+        "IOLegacy",
+        "IOMINC",
+        "IOMPIImage",
+        "IOMotionFX",
+        "IOMovie",
+        "IOMySQL",
+        "IONetCDF",
+        "IOODBC",
+        "IOOggTheora",
+        "IOPDAL",
+        "IOPIO",
+        "IOPLY",
+        "IOParallel",
+        "IOParallelExodus",
+        "IOParallelLSDyna",
+        "IOParallelNetCDF",
+        "IOParallelXML",
+        "IOParallelXdmf3",
+        "IOPostgreSQL",
+        "IOSQL",
+        "IOSegY",
+        "IOTRUCHAS",
+        "IOTecplotTable",
+        "IOVPIC",
+        "IOVeraOut",
+        "IOVideo",
+        "IOXML",
+        "IOXMLParser",
+        "IOXdmf2",
+        "IOXdmf3",
+        "MomentInvariants",
+        "ParallelCore",
+        "ParallelDIY",
+        "ParallelMPI",
+        "PoissonReconstruction",
+        "Powercrust",
+        "PythonInterpreter",
+        "RenderingAnnotation",
+        "RenderingContext2D",
+        "RenderingContextOpenGL2",
+        "RenderingCore",
+        "RenderingExternal",
+        "RenderingFreeType",
+        "RenderingFreeTypeFontConfig",
+        "RenderingGL2PSOpenGL2",
+        "RenderingImage",
+        "RenderingLabel",
+        "RenderingLICOpenGL2",
+        "RenderingLOD",
+        "RenderingMatplotlib",
+        "RenderingOpenGL2",
+        "RenderingOpenVR",
+        "RenderingParallel",
+        "RenderingParallelLIC",
+        "RenderingQt",
+        "RenderingRayTracing",
+        "RenderingSceneGraph",
+        "RenderingUI",
+        "RenderingVolume",
+        "RenderingVolumeAMR",
+        "RenderingVolumeOpenGL2",
+        "RenderingVtkJS",
+        "SignedTensor",
+        "SplineDrivenImageSlicer",
+        "TestingCore",
+        "TestingGenericBridge",
+        "TestingIOSQL",
+        "TestingRendering",
+        "UtilitiesBenchmarks",
+        "ViewsContext2D",
+        "ViewsCore",
+        "ViewsInfovis",
+        "ViewsQt",
+        "WebCore",
+        "WebGLExporter",
+        "WrappingPythonCore",
+        "WrappingTools",
 
+        "diy2",
+        "doubleconversion",
+        "eigen",
+        "exodusII",
+        "expat",
+        "freetype",
+        "gl2ps",
+        "glew",
+        "h5part",
+        "hdf5",
+        "jpeg",
+        "jsoncpp",
+        "kissfft",
+        "kwiml",
+        "libharu",
+        "libproj",
+        "libxml2",
+        "loguru",
+        "lz4",
+        "lzma",
+        "metaio",
+        "netcdf",
+        "octree",
+        "ogg",
+        "opengl",
+        "pegtl",
+        "png",
+        "pugixml",
+        "sqlite",
+        "theora",
+        "tiff",
+        "utf8",
+        "verdict",
+        "vpic",
+        "vtkDICOM",
+        "vtkm",
+        "vtksys",
+        "xdmf2",
+        "xdmf3",
+        "zfp",
+        "zlib",
+    ]
+    options = dict({"shared": [True, False], "fPIC": [True, False],
+    }, **{"group_{}".format(group.lower()): [True, False] for group in _groups},
+    **{"module_{}".format(module.lower()): [True, False] for module in _modules}
+    )
+    # default_options are set to the same values as clean VTK 9.0.1 cmake installation has, except "shared" which Conan require to be "False" by default.
+    default_options = dict({
+        "shared": True,
+        "fPIC": False,
+        }, **{"group_{}".format(group.lower()): True for group in _groups if (group in ["StandAlone", "Rendering"])},
+        **{"group_{}".format(group.lower()): False for group in _groups if (group not in ["StandAlone", "Rendering"])},
+        **{"module_{}".format(module.lower()): False for module in _modules})
+    _cmake = None
     short_paths = True
 
 
@@ -50,149 +259,84 @@ class VTKConan(ConanFile):
        self.version = "%s.%s.%s" %(vtk_version_major, vtk_version_minor, vtk_version_build)
        self.output.info("VTK version available from nightly is %s" % self.version)
 
+
     def source(self):
        git = tools.Git(folder="VTK")
        git.clone("https://gitlab.kitware.com/vtk/vtk.git", "nightly-master")
        os.rename("VTK", self.source_subfolder)
 
+
     def requirements(self):
-        if self.options.VTK_Group_Qt:
-            self.requires("qt/5.12.4@bincrafters/stable")
+        if self.options.group_qt:
+            self.requires("qt/6.0.1@bincrafters/stable")
             self.requires("bzip2/1.0.8@conan/stable")      # Override for pcre library conflict
             self.options["qt"].shared = True
-            if tools.os_info.is_linux:
-                self.options["qt"].qtx11extras = True
 
-    def _system_package_architecture(self):
-        if tools.os_info.with_apt:
-            if self.settings.arch == "x86":
-                return ':i386'
-            elif self.settings.arch == "x86_64":
-                return ':amd64'
-
-        if tools.os_info.with_yum:
-            if self.settings.arch == "x86":
-                return '.i686'
-            elif self.settings.arch == 'x86_64':
-                return '.x86_64'
-        return ""
-
-    def build_requirements(self):
-        pack_names = None
-        if not self.options.VTK_Group_Rendering and tools.os_info.is_linux:
-            if tools.os_info.with_apt:
-                pack_names = [
-                    "freeglut3-dev",
-                    "mesa-common-dev",
-                    "mesa-utils-extra",
-                    "libgl1-mesa-dev",
-                    "libglapi-mesa",
-                    "libsm-dev",
-                    "libx11-dev",
-                    "libxext-dev",
-                    "libxt-dev",
-                    "libglu1-mesa-dev"]
-
-        if pack_names:
-            installer = tools.SystemPackageTool()
-            for item in pack_names:
-                installer.install(item + self._system_package_architecture())
 
     def config_options(self):
         if self.settings.compiler == "Visual Studio":
             del self.options.fPIC
 
+
+    def _configure_cmake(self):
+        if self._cmake:
+            return self._cmake
+        self._cmake = CMake(self)
+        self._cmake.definitions["BUILD_TESTING"] = "OFF"
+        self._cmake.definitions["BUILD_EXAMPLES"] = "OFF"
+        self._cmake.definitions["BUILD_SHARED_LIBS"] = self.options.shared
+
+        # VTK available options for cmake defines are `YES`, `WANT`, `DONT_WANT`, `NO`, or `DEFAULT`. Other values results as cmake configure step failure.
+        for group in self._groups:
+            self._cmake.definitions["VTK_GROUP_ENABLE_{}".format(group)] = "WANT" if self.options.get_safe("group_{}".format(group.lower()), default=False) else "DEFAULT"
+        for module in self._modules:
+            # Defines shouldn't be left uninitalized, however VTK has so many _modules, that
+            # it ends up as "The command line is too long." error on Windows.
+            if self.options.get_safe("module_{}".format(module.lower()), default=False):
+                self._cmake.definitions["VTK_MODULE_ENABLE_VTK_{}".format(module)] = "WANT" if self.options.get_safe("module_{}".format(module.lower()), default=False) else "DEFAULT"
+
+        self._cmake.configure(source_folder=self.source_folder+'/'+self.source_subfolder,build_folder='build')
+        return self._cmake
+
+
     def build(self):
-        cmake = CMake(self)
-        cmake.definitions["BUILD_TESTING"] = "OFF"
-        cmake.definitions["BUILD_EXAMPLES"] = "OFF"
-        cmake.definitions["BUILD_SHARED_LIBS"] = self.options.shared
+        cmake = self._configure_cmake()
 
-        if self.settings.os == 'Macos':
-            cmake.definitions["CMAKE_INSTALL_NAME_DIR"] = "@rpath"
-
-
-        cmake.definitions["VTK_Group_Imaging"]=self.options.VTK_Group_Imaging
-        cmake.definitions["VTK_Group_MPI"]=self.options.VTK_Group_MPI
-        cmake.definitions["VTK_Group_Qt"]=self.options.VTK_Group_Qt
-        cmake.definitions["VTK_Group_Rendering"]=self.options.VTK_Group_Rendering
-        cmake.definitions["VTK_Group_StandAlone"]=self.options.VTK_Group_StandAlone  # This is required
-        cmake.definitions["VTK_Group_Tk"]=self.options.VTK_Group_Tk
-        cmake.definitions["VTK_Group_Views"]=self.options.VTK_Group_Views
-        cmake.definitions["VTK_Group_Web"]=self.options.VTK_Group_Web
-
+        if self.options.group_qt:
+            cmake.definitions["VTK_QT_VERSION"] = self.requires["qt"].ref.version.split(".")[0]
 
         if self.settings.build_type == "Debug" and self.settings.compiler == "Visual Studio":
             cmake.definitions["CMAKE_DEBUG_POSTFIX"] = "_d"
+        
+        #for patch in self.conan_data.get("patches", {}).get(self.version, []):
+        #    tools.patch(**patch)
 
-        if self.settings.os == 'Macos':
-            self.env['DYLD_LIBRARY_PATH'] = os.path.join(self.build_folder, 'lib')
-            self.output.info("cmake build: %s" % self.build_folder)
+        cmake.build()
+    
+    
+    def validate(self):
+        if self.options.group_qt:
+            if self.options["qt"].shared == False:
+                raise ConanInvalidConfiguration("VTK option 'group_qt' requires 'qt:shared=True'")
 
-            if self.settings.compiler == 'apple-clang' and tools.Version(self.settings.compiler.version).major >= '12':
-                self.output.info("apple-clang v12 detected")
-                cmake.definitions["CMAKE_CXX_FLAGS"] = "-Wno-implicit-function-declaration"
-                cmake.definitions["CMAKE_C_FLAGS"] = "-Wno-implicit-function-declaration"
-
-        cmake.configure(source_folder=self.source_folder+'/'+self.source_subfolder,build_folder='build')
-
-        if self.settings.os == 'Macos':
-            # run_environment does not work here because it appends path just from
-            # requirements, not from this package itself
-            # https://docs.conan.io/en/latest/reference/build_helpers/run_environment.html#runenvironment
-            lib_path = os.path.join(self.build_folder, 'lib')
-            self.run('DYLD_LIBRARY_PATH={0} cmake --build build {1} -j'.format(lib_path, cmake.build_config))
-        else:
-            cmake.build()
-        cmake.install()
-
-    # From https://git.ircad.fr/conan/conan-vtk/blob/stable/8.2.0-r1/conanfile.py
-    def cmake_fix_path(self, file_path, package_name):
-        try:
-            tools.replace_in_file(
-                file_path,
-                self.deps_cpp_info[package_name].rootpath.replace('\\', '/'),
-                "${CONAN_" + package_name.upper() + "_ROOT}",
-                strict=False
-            )
-        except:
-            self.output.info("Ignoring {0}...".format(package_name))
-
-    def cmake_fix_macos_sdk_path(self, file_path):
-        # Read in the file
-        with open(file_path, 'r') as file:
-            file_data = file.read()
-
-        if file_data:
-            # Replace the target string
-            file_data = re.sub(
-                # Match sdk path
-                r';/Applications/Xcode\.app/Contents/Developer/Platforms/MacOSX\.platform/Developer/SDKs/MacOSX\d\d\.\d\d\.sdk/usr/include',
-                '',
-                file_data,
-                re.M
-            )
-
-            # Write the file out again
-            with open(file_path, 'w') as file:
-                file.write(file_data)
 
     def package(self):
-        for path, subdirs, names in os.walk(os.path.join(self.package_folder, 'lib', 'cmake')):
-            for name in names:
-                if fnmatch(name, '*.cmake'):
-                    cmake_file = os.path.join(path, name)
+        self.copy("FindVTK.cmake", ".", ".")
+        cmake = self._configure_cmake()
+        cmake.install()
 
-                    # if self.options.external_tiff:
-                        # self.cmake_fix_path(cmake_file, "libtiff")
-                    # if self.options.external_zlib:
-                        # self.cmake_fix_path(cmake_file, "zlib")
-
-                    if tools.os_info.is_macos:
-                        self.cmake_fix_macos_sdk_path(cmake_file)
+        # "$\package\lib\vtk" contains "hierarchy\conanvtk\" and a lot of *.txt files in it. I believe they are not needed. Remove them.
+        #tools.rmdir(os.path.join(self.package_folder, 'lib', 'vtk'))
+        # "$\package\lib\cmake" contains a lot of *.cmake files. conan-center HOOK disallow *.cmake files in package. Remove them.
+        #tools.rmdir(os.path.join(self.package_folder, 'lib', 'cmake'))
+        # Licenses are created in "$\package\share\licenses\conanvtk\" while their must be in "$\package\licenses\". Move them from former to latter.
+        #os.rename(os.path.join(self.package_folder, 'share', 'licenses', 'conanvtk'), os.path.join(self.package_folder, 'licenses'))
+        #tools.rmdir(os.path.join(self.package_folder, 'share'))
 
 
     def package_info(self):
+        self.cpp_info.names["cmake_find_package"] = "VTK"
+        self.cpp_info.names["cmake_find_package_multi"] = "VTK"
         self.cpp_info.libs = tools.collect_libs(self)
 
         version_split = self.version.split('.')
