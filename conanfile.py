@@ -247,10 +247,14 @@ class VTKConan(ConanFile):
         **{"module_{}".format(module.lower()): False for module in _modules})
     _cmake = None
     short_paths = True
+    vtk_commit = ""  # SHA-1 hash of commit
 
 
     def set_version(self):
-       tools.download("https://gitlab.kitware.com/vtk/vtk/-/raw/nightly-master/CMake/vtkVersion.cmake", "temp/vtkVersion.cmake")
+       if self.vtk_commit:
+          tools.download("https://gitlab.kitware.com/vtk/vtk/-/raw/" + self.vtk_commit + "/CMake/vtkVersion.cmake", "temp/vtkVersion.cmake")
+       else:
+          tools.download("https://gitlab.kitware.com/vtk/vtk/-/raw/nightly-master/CMake/vtkVersion.cmake", "temp/vtkVersion.cmake")
        content = tools.load("temp/vtkVersion.cmake")
        tools.rmdir("temp")
        vtk_version_major = re.search("set\(VTK_MAJOR_VERSION (.*)\)", content).group(1)
@@ -263,12 +267,14 @@ class VTKConan(ConanFile):
     def source(self):
        git = tools.Git(folder="VTK")
        git.clone("https://gitlab.kitware.com/vtk/vtk.git", "nightly-master")
+       if self.vtk_commit:
+          git.checkout(self.vtk_commit)
        os.rename("VTK", self.source_subfolder)
 
 
     def requirements(self):
         if self.options.group_qt:
-            self.requires("qt/6.0.2")
+            self.requires("qt/6.0.1@bincrafters/stable")
             self.requires("bzip2/1.0.8@conan/stable")      # Override for pcre library conflict
             self.options["qt"].shared = True
 
@@ -294,6 +300,14 @@ class VTKConan(ConanFile):
             # it ends up as "The command line is too long." error on Windows.
             if self.options.get_safe("module_{}".format(module.lower()), default=False):
                 self._cmake.definitions["VTK_MODULE_ENABLE_VTK_{}".format(module)] = "WANT" if self.options.get_safe("module_{}".format(module.lower()), default=False) else "DEFAULT"
+
+        if self.options.group_qt:
+            vtk_qt = self.requires["qt"].ref.version.split(".")[0]
+            self._cmake.definitions["VTK_QT_VERSION"] = vtk_qt
+            self.output.info("VTK_QT_VERSION is " + vtk_qt)
+
+        if self.settings.build_type == "Debug" and self.settings.compiler == "Visual Studio":
+            self._cmake.definitions["CMAKE_DEBUG_POSTFIX"] = "_d"
 
         self._cmake.configure(source_folder=self.source_folder+'/'+self.source_subfolder,build_folder='build')
         return self._cmake
