@@ -268,7 +268,7 @@ class VTKConan(ConanFile):
 
     def requirements(self):
         if self.options.group_qt:
-            self.requires("qt/6.0.1@bincrafters/stable")
+            self.requires("qt/6.0.2")
             self.requires("bzip2/1.0.8@conan/stable")      # Override for pcre library conflict
             self.options["qt"].shared = True
 
